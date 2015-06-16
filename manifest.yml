@@ -1,0 +1,9 @@
+---
+applications:
+- name: cf-chat-websocket
+  host: cf-chat-websocket-${random-word}
+  memory: 256M
+  instances: 2
+  path: ./
+  services:
+  - redis
