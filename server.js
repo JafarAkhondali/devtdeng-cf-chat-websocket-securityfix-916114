@@ -82,13 +82,14 @@ wsServer.on('request', function(request) {
           from_user: json.from_user
         };
 
-      messages.push(obj);
-      messages = messages.slice(-100);
-
       // broadcast message to all connected users
       for (var i=0; i < users.length; i++) {
           users[i].sendUTF(JSON.stringify(json));
       }
+
+      // store message into queue
+      messages.push(obj);
+      messages = messages.slice(-100);
     }
   });
 
