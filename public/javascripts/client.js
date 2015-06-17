@@ -7,7 +7,7 @@ $(document).ready(function() {
   // PWS only supports wss
   var proto = "wss:";
   var wss_port = "4443";    // PWS WebSocket port is 4443
-  var url   = proto + "//" + location.host + ":" + wss_port;
+  var url   = proto + "//" + location.hostname + ":" + wss_port;
   var wss = new WebSocket(url, 'echo-protocol');
   wss.onopen    = onOpen;
   wss.onerror   = onError;
@@ -53,10 +53,8 @@ $(document).ready(function() {
 
   $('.chat-box textarea').keydown(function(e) {
     if(e.keyCode == 13){
-      object = JSON.stringify({"from_user" : from_user, "message" : $('#message-input').val().trim()});
-      wss.send(object);
+      wss.send(JSON.stringify({"from_user" : from_user, "message" : $('#message-input').val().trim()}));
       $(this).val('');
-      $('.jumbotron').hide();
       e.preventDefault();
     }
   });
