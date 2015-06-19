@@ -4,8 +4,8 @@ var http = require('http'),
     path = require("path"),
     fs = require("fs");
 
-var messages = [ ];    // store message hitory in array, this will be replaced by Redis or RabbitMQ
-var users = [ ];
+var messages = [ ];     // store message hitory in array, this will be replaced by Redis or RabbitMQ
+var users = [ ];        // user list should be store in redis or mysql
 
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -82,11 +82,7 @@ wsServer.on('request', function(request) {
           from_user: json.from_user
         };
 
-      // broadcast message to all connected users
-      for (var i=0; i < users.length; i++) {
-          users[i].sendUTF(JSON.stringify(json));
-      }
-
+      sendto(json.message, json.from_user);
       // store message into queue
       messages.push(obj);
       messages = messages.slice(-100);
@@ -94,6 +90,30 @@ wsServer.on('request', function(request) {
   });
 
   connection.on('close', function(connection) {
+    console.log(connection);
+
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    // TODO: remove user from users array
+    broadcast("user X left chat", "system");
   });
+
+  function sendto(message, from, to) {
+    to = typeof to !== 'undefined' ? to : "all";
+
+    var json = {
+      message: message,
+      from_user: from,
+      to_user: to
+    };
+
+    if (to == "all") {
+      // broadcast to all users
+      for (var i=0; i < users.length; i++) {
+          users[i].sendUTF(JSON.stringify(json));
+      }
+    } else {
+      // TODO
+      // to.sendUTF(JSON.stringify(json));
+    }
+  }
 });

@@ -1,7 +1,7 @@
 ---
 applications:
 - name: cf-chat-websocket
-  host: cf-chat-websocket-${random-word}
+  host: cf-chat-websocket-tdeng
   memory: 256M
   instances: 1
   path: ./
