@@ -1,6 +1,6 @@
 {
   "name": "cf-chat-websocket",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "server.js",
   "dependencies": {
     "websocket": "1.0.x"

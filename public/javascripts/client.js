@@ -40,6 +40,8 @@ $(document).ready(function() {
 		$('#user-name').val('');
 		$('.user-form').hide();
 		$('.chat-box').show();
+
+    wss.send(JSON.stringify({"type" : "login", "from_user" : from_user}));
 	}
 
   $('#user-name').keydown(function(e) {
@@ -47,13 +49,14 @@ $(document).ready(function() {
       go();
     }
   });
+
   $('.go-user').on('click', function(e) {
     go();
   });
 
   $('.chat-box textarea').keydown(function(e) {
     if(e.keyCode == 13){
-      wss.send(JSON.stringify({"from_user" : from_user, "message" : $('#message-input').val().trim()}));
+      wss.send(JSON.stringify({"type" : "message", "from_user" : from_user, "message" : $('#message-input').val().trim()}));
       $(this).val('');
       e.preventDefault();
     }

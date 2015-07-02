@@ -3,18 +3,15 @@ var http = require('http'),
     url = require("url"),
     path = require("path"),
     fs = require("fs");
+    // amqp = require("amqp");
 
-var messages = [ ];     // store message hitory in array, this will be replaced by Redis or RabbitMQ
-var users = [ ];        // user list should be store in redis or mysql
+var connections = [];
+// var users = [];
 
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
                       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
-// sort colors in random order
-var colors = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
-colors.sort(function(a,b) { return Math.random() > 0.5; } );
 
 // create HTTP server
 var server = http.createServer(function(request, response) {
@@ -59,42 +56,37 @@ wsServer = new WebSocketServer({
     httpServer: server
 });
 
+// TBD: connect to RabbitMQ
+
 // WebSocket server
 wsServer.on('request', function(request) {
   var connection = request.accept('echo-protocol', request.origin);
-  var index = users.push(connection) - 1;
+  connections.push(connection);
   console.log((new Date()) + ' Connection from origin ' + request.origin + ' accepted.');
-
-  // read history and send to the new connected user
-  for (var i=0; i < messages.length; i++) {
-    connection.sendUTF(messages[i]);
-  }
 
   connection.on('message', function(event) {
     if (event.type == "utf8") {
       var json = JSON.parse(event.utf8Data);
-      console.log((new Date()) + ' Received Message from ' + json.from_user + ': ' + json.message);
+      console.log((new Date()) + ' Received Message from ' + json.from_user);
 
-      // keep message history
-      var obj = {
-          time: (new Date()).getTime(),
-          message: json.message,
-          from_user: json.from_user
-        };
-
-      sendto(json.message, json.from_user);
-      // store message into queue
-      messages.push(obj);
-      messages = messages.slice(-100);
+      if (json.type == "login") {
+        var user = json.from_user;
+        sendto(user + " join room", "system");
+      } else {
+        sendto(json.message, json.from_user);
+      }
     }
   });
 
-  connection.on('close', function(connection) {
-    console.log(connection);
+  connection.on('close', function(reasonCode, description) {
+    console.log((new Date()) + ' client ' + connection.remoteAddress + ' disconnected, reason: ' + reasonCode);
+    // sendto(user + " left room", "system");
 
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    // TODO: remove user from users array
-    broadcast("user X left chat", "system");
+    // remove connection from connections array
+    var index = connections.indexOf(connection);
+    if (index > -1) {
+        connections.splice(index, 1);
+    }
   });
 
   function sendto(message, from, to) {
@@ -107,9 +99,8 @@ wsServer.on('request', function(request) {
     };
 
     if (to == "all") {
-      // broadcast to all users
-      for (var i=0; i < users.length; i++) {
-          users[i].sendUTF(JSON.stringify(json));
+      for (var i in connections) {
+        connections[i].sendUTF(JSON.stringify(json));
       }
     } else {
       // TODO
