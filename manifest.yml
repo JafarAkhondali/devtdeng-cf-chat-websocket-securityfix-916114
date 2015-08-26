@@ -5,6 +5,3 @@ applications:
   memory: 256M
   instances: 1
   path: ./
-  services:
-  - redis
-  - rabbitmq
