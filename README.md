@@ -1,16 +1,14 @@
 # cf-chat-websocket
-This is NodeJS + Cloud Foundry + Redis + WebSocket chatroom.
+This is NodeJS + Cloud Foundry + WebSocket chatroom.
 
 ## Start
 ```
-cf create-service rediscloud 25mb redis
-cf create-service cloudamqp lemur rabbitmq
-cf push
+cf push -n HOSTNAME
 ```
 
 ## Access
 ```
-https://cf-chat-websocket-${random-word}.cfapps.io
+https://HOSTNAME.cfapps.io
 ```
 
 ## TODO
