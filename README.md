@@ -8,12 +8,6 @@ cf push -n HOSTNAME
 
 ## Access
 ```
-https://HOSTNAME.cfapps.io
+https://HOSTNAME.DOMAIN
 ```
 
-## TODO
-- RabbitMQ as Message Queue
-- Redis for persistent data
-- Mulitple chatroom
-- Push Notification
-- iOS Client App
