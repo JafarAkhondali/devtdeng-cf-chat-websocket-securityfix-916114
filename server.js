@@ -15,6 +15,14 @@ function htmlEntities(str) {
 
 // create HTTP server
 var server = http.createServer(function(request, response) {
+    var decodedUri = decodeURI(request.url);
+    if (path.normalize(decodedUri) !== decodedUri) {
+        response.writeHead(403);
+        response.end();
+        return;
+    }
+    
+
 
   var uri = url.parse(request.url).pathname;
   var filename = path.join(process.cwd(), '/public' + uri);
